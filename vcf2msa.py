@@ -116,16 +116,20 @@ def main():
         print("Found mask files:", sampleMask.keys())
 
     for contig, sequence in reference.items():
-        outFas = "contig_" + str(contig) + ".fasta"
-        if params.region:
-            outFas = "contig_" + str(regions[params.regname].chr) + "_" + str(
-                regions[params.regname].start) + "-" + str(regions[params.regname].end) + ".fasta"
-        with open(outFas, 'w') as fh:
-            fh.close()  # clear exist file
+        # outFas = "contig_" + str(contig) + ".fasta"
+        # if params.region:
+        #     outFas = "contig_" + str(regions[params.regname].chr) + "_" + str(
+        #         regions[params.regname].start) + "-" + str(regions[params.regname].end) + ".fasta"
+        # with open(outFas, 'w') as fh:
+        #     fh.close()  # clear exist file
         # loop through each region - YL
         for locus, locus_region in regions.items():
+            #print(locus_region.gene)
             if contig != regions[locus].chr:
                 continue
+            
+            outFas = f"{locus_region.gene}.fasta"
+            
             outputs = dict()
             for samp in samples:
                 outputs[samp] = str()
@@ -162,11 +166,12 @@ def main():
                         name = ind.sample.split(".")[0]
                         if ind.gt_type:
                             if not this_pos[name]:
-                                this_pos[name] = genotype_resolve(
-                                    ind.gt_bases.split("/"), params.indel)
+                                alleles = ind.gt_bases.replace("|", "/").split("/")
+                                this_pos[name] = genotype_resolve(alleles, params.indel)
+
                             else:
-                                this_pos[name] = genotype_resolve(
-                                    ind.gt_bases.split("/"), params.indel, this_pos[name])
+                                alleles = ind.gt_bases.replace("|", "/").split("/")
+                                this_pos[name] = genotype_resolve(alleles, params.indel, this_pos[name])
 
                             # gt = "".join(sort(ind.gt_bases.split("/")))
                             # print(ind.sample, " : ", ind.gt_bases)
@@ -549,9 +554,10 @@ def read_fasta(fas):
 class ChromRegion():
     def __init__(self, s):
         stuff = re.split(':|-', s)
-        self.chr = str(stuff[0])
-        self.start = int(stuff[1])
-        self.end = int(stuff[2])
+        self.gene = str(stuff[0])
+        self.chr = str(stuff[1])
+        self.start = int(stuff[2])
+        self.end = int(stuff[3])
 
 
 # Object to parse command-line arguments
