@@ -553,11 +553,13 @@ def read_fasta(fas):
 
 class ChromRegion():
     def __init__(self, s):
-        stuff = re.split(':|-', s)
-        self.gene = str(stuff[0])
-        self.chr = str(stuff[1])
-        self.start = int(stuff[2])
-        self.end = int(stuff[3])
+        genestuff = re.split('@', s)
+        self.gene = genestuff[0]  # Corrected to assign the first part before '@' to self.gene
+        stuff = re.split(':|-', genestuff[1])
+        self.chr = str(stuff[0])
+        self.start = int(stuff[1])
+        self.end = int(stuff[2])
+
 
 
 # Object to parse command-line arguments
